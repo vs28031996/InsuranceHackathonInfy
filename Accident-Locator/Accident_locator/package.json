@@ -33,6 +33,8 @@
     "cordova-browser": "6.0.0",
     "cordova-plugin-geolocation": "^4.0.2",
     "cordova-plugin-googlemaps": "^2.6.2",
+    "cordova-plugin-mauron85-background-geolocation": "^3.0.1",
+    "cordova-res": "^0.6.0",
     "core-js": "^2.5.4",
     "ionic": "^5.2.5",
     "native-run": "^0.2.8",
@@ -85,7 +87,16 @@
       },
       "cordova-plugin-ionic-keyboard": {},
       "cordova-plugin-geolocation": {},
-      "cordova-plugin-mauron85-background-geolocation": {},
+      "cordova-plugin-mauron85-background-geolocation": {
+        "GOOGLE_PLAY_SERVICES_VERSION": "11+",
+        "ANDROID_SUPPORT_LIBRARY_VERSION": "26+",
+        "ICON": "@mipmap/icon",
+        "SMALL_ICON": "@mipmap/icon",
+        "ACCOUNT_NAME": "@string/app_name",
+        "ACCOUNT_LABEL": "@string/app_name",
+        "ACCOUNT_TYPE": "$PACKAGE_NAME.account",
+        "CONTENT_AUTHORITY": "$PACKAGE_NAME"
+      },
       "cordova-plugin-googlemaps": {
         "API_KEY_FOR_ANDROID": "AIzaSyCEitoFA5cQH37v8ERiWavzM1yRCmcH5Gc",
         "PLAY_SERVICES_VERSION": "15.0.1",
