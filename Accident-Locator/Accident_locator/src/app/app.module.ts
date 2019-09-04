@@ -8,6 +8,8 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { BackgroundGeolocation } from "@ionic-native/background-geolocation/ngx";
 import { GoogleMaps } from '@ionic-native/google-maps';
+import { Media } from '@ionic-native/media/ngx';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -22,6 +24,7 @@ import { AppComponent } from './app.component';
     Geolocation,
     BackgroundGeolocation,
     GoogleMaps,
+    Media,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

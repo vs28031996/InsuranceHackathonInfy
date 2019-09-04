@@ -82,7 +82,7 @@ export class Tab2Page {
 
       // add a marker
       this.marker = this.map.addMarkerSync({
-        title: 'Danger zone',        
+        title: 'Risk zone',        
         position: location.latLng,
         draggable:true,
         animation: GoogleMapsAnimation.BOUNCE
@@ -101,13 +101,14 @@ export class Tab2Page {
     let toast = await this.toastCtrl.create({
       message: message,
       duration: 1000,
-      position: 'middle'
+      position: 'middle',
+      color:"success" 
     });
 
     toast.present();
   }
 
-  GetNearestLocation() {
+  SetDangerLocation() {
     this.marker.getPosition();
     this.showToast('Added in Database!!');
 
