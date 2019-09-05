@@ -1,0 +1,7 @@
+{
+  "name": "Accident_locator",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

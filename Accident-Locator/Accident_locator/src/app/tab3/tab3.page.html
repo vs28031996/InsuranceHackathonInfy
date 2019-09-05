@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Alert Me
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>About this app</ion-card-subtitle>
+      <ion-card-title>AlertMe</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <span>The AlertMe App has been developed to help you quickly recognize a Danger/High Risk Zone. It will alert you through voice and text notification if you enter any of these risk zones. You can also contribute by adding places which you would consider as a high risk zone.</span> 
+    </ion-card-content>
+    <ion-card-content>
+      <span>This app uses a mobile phone's GPS functionality and tracks your location on a map.  </span>
+      <ion-button ion-button (click)="goToHomePage()">Go To Home Page</ion-button>
+      <ion-button ion-button (click)="goToContributePage()">Go To Contribute Page</ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
