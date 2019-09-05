@@ -2,7 +2,8 @@ import { Component, OnInit  } from '@angular/core';
 import {
   ToastController,
   Platform,
-  LoadingController
+  LoadingController,
+  AlertController
 } from '@ionic/angular';
 import {
   GoogleMaps,
@@ -13,6 +14,8 @@ import {
   GoogleMapsAnimation,
   MyLocation
 } from '@ionic-native/google-maps';
+
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-tab2',
@@ -25,11 +28,14 @@ export class Tab2Page {
   loading: any;
   marker: Marker;
   position: LatLng[];
+  markerArray: any[] = [];
 
   constructor(
     public loadingCtrl: LoadingController,
     public toastCtrl: ToastController,
-    private platform: Platform) { }
+    private platform: Platform,
+    public alertController:AlertController,
+    public storage: Storage) { }
 
   async ngOnInit() {
     // Since ngOnInit() is executed before `deviceready` event,
@@ -50,19 +56,27 @@ export class Tab2Page {
       }
     });
 
-    let coordinates: LatLng = new LatLng( 12.2958, 76.6394 );
+    let coordinates: LatLng = new LatLng( 12.2958, 76.6394 );    
     this.marker = this.map.addMarkerSync({
-      title: 'Danger zone',        
+      title: 'Risk zone',        
       position: coordinates,
-      draggable:true,
+      draggable: true,
       animation: GoogleMapsAnimation.BOUNCE
     });
 
+    this.map.one(GoogleMapsEvent.MAP_READY)
+      .then(() => {
+        this.map.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((data) => {
+            let position = new LatLng(data[0].lat, data[0].lng);             
+            this.marker.setPosition(position);
+            });    
+      });
+  
   }
 
   async onButtonClick() {
+    
     this.map.clear();
-
     this.loading = await this.loadingCtrl.create({
       message: 'Please wait...'
     });
@@ -71,8 +85,6 @@ export class Tab2Page {
     // Get the location of you
     this.map.getMyLocation().then((location: MyLocation) => {
       this.loading.dismiss();
-      console.log(JSON.stringify(location, null ,2));
-
       // Move the map camera to the location with animation
       this.map.animateCamera({
         target: location.latLng,
@@ -90,11 +102,25 @@ export class Tab2Page {
 
       // show the infoWindow
       this.marker.showInfoWindow();
+      // show another marker
+      this.map.one(GoogleMapsEvent.MAP_READY)
+      .then(() => {
+        this.map.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((data) => {
+          let position = new LatLng(data[0].lat, data[0].lng); 
+          let markerTwo = this.map.addMarker({
+            title: 'Risk zone',        
+            position: position,
+            draggable:true,
+            animation: GoogleMapsAnimation.BOUNCE
+            });
+          });    
+      });
     })
     .catch(err => {
       this.loading.dismiss();
       this.showToast(err.error_message);
     });
+  
   }
 
   async showToast(message: string) {
@@ -109,8 +135,41 @@ export class Tab2Page {
   }
 
   SetDangerLocation() {
-    this.marker.getPosition();
-    this.showToast('Added in Database!!');
+    this.markerArray.push(this.marker.getPosition()); 
+    this.storage.set('markerArray', this.markerArray); 
+    this.presentAlertPrompt();  
+    
+  }
 
+  async presentAlertPrompt() {
+    const alert = await this.alertController.create({
+      header: 'Enter the Intensity of the zone!!!',
+      inputs: [        
+        {
+          name: 'name1',
+          type: 'number',
+          min: 1,
+          max: 10,
+          placeholder:"1-10"
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Ok',
+          handler: () => {
+            this.showToast('Added in Database!!');
+          }
+        }
+      ]
+    });
+
+    await alert.present();    
   }
 }
