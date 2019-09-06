@@ -27,14 +27,29 @@ export class Tab1Page {
   map = GoogleMaps.create( 'map' );
   file: MediaObject;
   markerArray: any[] = [];
+  circleAdded: Circle;
   
-  constructor(public platform: Platform, public storage:Storage, public alertCtrl:AlertController, public localNotifications: LocalNotifications, public media:Media, public nav: NavController, public loadingCtrl: LoadingController,) {}
+  constructor(
+    public platform: Platform,
+    public storage:Storage, 
+    public alertCtrl:AlertController, 
+    public localNotifications: LocalNotifications, 
+    public media:Media, public nav: NavController, 
+    public loadingCtrl: LoadingController) {}
 
+  ionViewWillEnter() {
+    this.platform.ready().then( () => {
+      this.circleAdded.remove();
+      this.SetRiskZone();
+		});
+  }
+  
   ngAfterViewInit() {
 
 		this.platform.ready().then( () => {
 
-			this.loadMap();
+      this.loadMap();
+      this.SetRiskZone();
 		});
   }
 
@@ -99,31 +114,7 @@ export class Tab1Page {
       message: 'Please wait...'
     });
     await this.loading.present();
-    
-    this.storage.get('markerArray').then((val) => {
-      let position = new LatLng(val[0].lat, val[0].lng); 
-      var circle1: Circle = this.map.addCircleSync({
-        center: position,
-        radius: 500,
-        strokeColor: "#E16D65",
-        strokeOpacity: 1,
-        strokeWeight: 3,
-        fillColor: "#00880055",
-        fillOpacity: 0,
-        strokeWidth: 3,
-        title: "Danger Zone"
-      });
-      var direction = 1;
-        var rMin = 150, rMax = 500;
-        setInterval(function() {
-          var radius = circle1.getRadius();
-          if ((radius > rMax) || (radius < rMin)) {
-            direction *= -1;
-          }
-          circle1.setRadius(radius + direction * 10);
-        }, 50);
-    });
-      
+            
       this.map.getMyLocation().then((location: MyLocation) => {
         this.loading.dismiss();
   
@@ -201,5 +192,34 @@ export class Tab1Page {
     let a = 0.5 - c((lat1-lat2) * p) / 2 + c(lat2 * p) *c((lat1) * p) * (1 - c(((long1- long2) * p))) / 2;
     let dis = (12742 * Math.asin(Math.sqrt(a))); // 2 * R; R = 6371 km
     return dis;
+  }
+
+  SetRiskZone() {
+    
+    this.storage.get('markerArray').then((val) => {
+      let position = new LatLng(val[0].lat, val[0].lng); 
+      this.circleAdded = this.map.addCircleSync({
+        center: position,
+        radius: 500,
+        strokeColor: "#E16D65",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        fillColor: "#00880055",
+        fillOpacity: 0,
+        strokeWidth: 3,
+        title: "Danger Zone"
+      });
+      
+      var direction = 1;
+        var rMin = 150, rMax = 500;
+        setInterval(function() {
+          var radius = this.circleAdded.getRadius();
+          if ((radius > rMax) || (radius < rMin)) {
+            direction *= -1;
+          }
+          this.circleAdded.setRadius(radius + direction * 10);
+        }, 50);
+    });
+
   }
 }
