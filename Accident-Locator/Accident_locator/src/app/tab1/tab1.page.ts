@@ -28,6 +28,7 @@ export class Tab1Page implements OnInit{
   file: MediaObject;
   markerArray: any[] = [];
   circleAdded: Circle;
+  currentLocation: LatLng;
   
   constructor(
     public platform: Platform,
@@ -118,11 +119,12 @@ export class Tab1Page implements OnInit{
             
       this.map.getMyLocation().then((location: MyLocation) => {
         this.loading.dismiss();
+        this.currentLocation = location.latLng;
   
         // Move the map camera to the location with animation
         this.map.animateCamera({
           target: location.latLng,
-          zoom: 15
+          zoom: 14
         });
         let coordinatesGec: LatLng = new LatLng(12.361315, 76.592100);
         // let coordinates: LatLng= new LatLng(12.359565, 76.603543);
@@ -136,44 +138,28 @@ export class Tab1Page implements OnInit{
           fillColor: "#003e8f",
           strokeWidth: 3
         });
-
-        var circle: Circle = this.map.addCircleSync({
-          center: coordinatesGec,
-          radius: 500,
-          strokeColor: "#E16D65",
-          strokeOpacity: 1,
-          strokeWeight: 3,
-          fillColor: "#00880055",
-          fillOpacity: 0,
-          strokeWidth: 3,
-          title: "Danger Zone"
-        });
-
-        var direction = 1;
-        var rMin = 150, rMax = 500;
-        setInterval(function() {
-          var radius = circle.getRadius();
-          if ((radius > rMax) || (radius < rMin)) {
-            direction *= -1;
-          }
-          circle.setRadius(radius + direction * 10);
-        }, 50);
-
-        if (this.calculateDistance(location.latLng.lat, coordinatesGec.lat, location.latLng.lng, coordinatesGec.lng) <= 0.5) {
-          setTimeout(() => {
-            this.file = this.media.create('https://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3');
-            this.file.play();
-            this.file.stop();
-           
-            this.localNotifications.schedule({
-              led: 'FF0000',
-              text: 'You have entered a high risk zone. Stay Safe!!',
-              sound: 'file://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3'
-            });
-            this.presentAlert();        
-        }, 6000)
-        }
       
+        // var circle: Circle = this.map.addCircleSync({
+        //   center: coordinatesGec,
+        //   radius: 500,
+        //   strokeColor: "#E16D65",
+        //   strokeOpacity: 1,
+        //   strokeWeight: 3,
+        //   fillColor: "#00880055",
+        //   fillOpacity: 0,
+        //   strokeWidth: 3,
+        //   title: "Danger Zone"
+        // });
+
+        // var direction = 1;
+        // var rMin = 150, rMax = 500;
+        // setInterval(function() {
+        //   var radius = circle.getRadius();
+        //   if ((radius > rMax) || (radius < rMin)) {
+        //     direction *= -1;
+        //   }
+        //   circle.setRadius(radius + direction * 10);
+        // }, 50);
       
       })
       .catch(err => {
@@ -224,8 +210,21 @@ export class Tab1Page implements OnInit{
           }
           this.circleAdded.setRadius(radius + direction * 10);
         }, 50);
-
         
+        if (this.calculateDistance(this.currentLocation.lat, val[length].lat, this.currentLocation.lng, val[length].lng) <= 0.5) {
+          setTimeout(() => {
+            this.file = this.media.create('https://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3');
+            this.file.play();
+            this.file.stop();
+           
+            this.localNotifications.schedule({
+              led: 'FF0000',
+              text: 'You have entered a high risk zone. Stay Safe!!',
+              sound: 'file://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3'
+            });
+            this.presentAlert();        
+        }, 5000)
+        }                    
     });
     
 
