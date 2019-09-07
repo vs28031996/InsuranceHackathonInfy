@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import {
   GoogleMaps,
   GoogleMap,
@@ -21,7 +21,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss']
 })
-export class Tab1Page {
+export class Tab1Page implements OnInit{
 
   loading: any;
   map = GoogleMaps.create( 'map' );
@@ -37,19 +37,20 @@ export class Tab1Page {
     public media:Media, public nav: NavController, 
     public loadingCtrl: LoadingController) {}
 
-  ionViewWillEnter() {
-    this.platform.ready().then( () => {
-      this.circleAdded.remove();
+  ionViewDidEnter() {
+    this.platform.ready().then( ()=> {
+      this.circleAdded.remove(); 
       this.SetRiskZone();
+      console.log("back to Page1");
 		});
   }
   
-  ngAfterViewInit() {
+  ngOnInit() {
 
 		this.platform.ready().then( () => {
-
-      this.loadMap();
       this.SetRiskZone();
+      this.loadMap();
+      
 		});
   }
 
@@ -123,7 +124,8 @@ export class Tab1Page {
           target: location.latLng,
           zoom: 15
         });
-        let coordinates: LatLng= new LatLng(12.359565, 76.603543);
+        let coordinatesGec: LatLng = new LatLng(12.361315, 76.592100);
+        // let coordinates: LatLng= new LatLng(12.359565, 76.603543);
         
         var circleCurrentLocation: Circle = this.map.addCircleSync({
           center: location.latLng,
@@ -136,7 +138,7 @@ export class Tab1Page {
         });
 
         var circle: Circle = this.map.addCircleSync({
-          center: coordinates,
+          center: coordinatesGec,
           radius: 500,
           strokeColor: "#E16D65",
           strokeOpacity: 1,
@@ -157,7 +159,7 @@ export class Tab1Page {
           circle.setRadius(radius + direction * 10);
         }, 50);
 
-        if (this.calculateDistance(location.latLng.lat, coordinates.lat, location.latLng.lng, coordinates.lng) <= 0.5) {
+        if (this.calculateDistance(location.latLng.lat, coordinatesGec.lat, location.latLng.lng, coordinatesGec.lng) <= 0.5) {
           setTimeout(() => {
             this.file = this.media.create('https://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3');
             this.file.play();
@@ -165,12 +167,14 @@ export class Tab1Page {
            
             this.localNotifications.schedule({
               led: 'FF0000',
-              text: 'You have entered a high risk zone',
+              text: 'You have entered a high risk zone. Stay Safe!!',
               sound: 'file://raw.githubusercontent.com/vs28031996/Notes-dbms-/master/alertme.mp3'
             });
             this.presentAlert();        
         }, 6000)
         }
+      
+      
       })
       .catch(err => {
         this.loading.dismiss();
@@ -180,7 +184,7 @@ export class Tab1Page {
   async presentAlert() {
     let alert = await this.alertCtrl.create({
       header:"Warning",
-      subHeader: "You have entered a high risk zone!! Stay Safe!!",
+      subHeader: "You have entered a high risk zone!!",
       buttons: ['OK']
     });
     await alert.present();
@@ -197,7 +201,9 @@ export class Tab1Page {
   SetRiskZone() {
     
     this.storage.get('markerArray').then((val) => {
-      let position = new LatLng(val[0].lat, val[0].lng); 
+      var length = val.length - 1 ;
+      let position = new LatLng(val[length].lat, val[length].lng); 
+      console.log(val);
       this.circleAdded = this.map.addCircleSync({
         center: position,
         radius: 500,
@@ -208,18 +214,20 @@ export class Tab1Page {
         fillOpacity: 0,
         strokeWidth: 3,
         title: "Danger Zone"
-      });
-      
+      });  
       var direction = 1;
         var rMin = 150, rMax = 500;
-        setInterval(function() {
+        setInterval(() => {
           var radius = this.circleAdded.getRadius();
           if ((radius > rMax) || (radius < rMin)) {
             direction *= -1;
           }
           this.circleAdded.setRadius(radius + direction * 10);
         }, 50);
+
+        
     });
+    
 
   }
 }

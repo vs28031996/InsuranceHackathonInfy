@@ -22,7 +22,7 @@ import { Storage } from '@ionic/storage';
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss']
 })
-export class Tab2Page {
+export class Tab2Page implements OnInit{
   
   map: GoogleMap;
   loading: any;
@@ -41,10 +41,11 @@ export class Tab2Page {
     // Since ngOnInit() is executed before `deviceready` event,
     // you have to wait the event.
     await this.platform.ready();
-    await this.loadMap();
+    await this.initializeMap();
   }
 
-  loadMap() {
+  initializeMap() {
+    
     this.map = GoogleMaps.create('map_canvas', {
       camera: {
         target: {
@@ -55,7 +56,18 @@ export class Tab2Page {
         tilt: 0
       }
     });
+  }
 
+  async ionViewDidEnter() {
+    this.map.clear();
+    await this.platform.ready().then( ()=> {      
+      console.log("back to Page2");
+    });
+    await this.loadMap();
+  }
+
+  loadMap() {
+    
     let coordinates: LatLng = new LatLng( 12.2958, 76.6394 );    
     this.marker = this.map.addMarkerSync({
       title: 'Risk zone',        
@@ -67,8 +79,11 @@ export class Tab2Page {
     this.map.one(GoogleMapsEvent.MAP_READY)
       .then(() => {
         this.map.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((data) => {
+            console.log('long click');
             let position = new LatLng(data[0].lat, data[0].lng);             
             this.marker.setPosition(position);
+            console.log(position);
+            console.log('inside default');
             });    
       });
   
@@ -107,12 +122,8 @@ export class Tab2Page {
       .then(() => {
         this.map.on(GoogleMapsEvent.MAP_LONG_CLICK).subscribe((data) => {
           let position = new LatLng(data[0].lat, data[0].lng); 
-          let markerTwo = this.map.addMarker({
-            title: 'Risk zone',        
-            position: position,
-            draggable:true,
-            animation: GoogleMapsAnimation.BOUNCE
-            });
+          this.marker.setPosition(position);
+          console.log('inside current location');
           });    
       });
     })
@@ -135,10 +146,16 @@ export class Tab2Page {
   }
 
   SetDangerLocation() {
-    this.markerArray.push(this.marker.getPosition()); 
+    this.markerArray.push(this.marker.getPosition());
+    console.log(this.marker.getPosition()); 
     this.storage.set('markerArray', this.markerArray); 
     this.presentAlertPrompt();  
     
+  }
+
+  addOneMarker() {
+    
+
   }
 
   async presentAlertPrompt() {
